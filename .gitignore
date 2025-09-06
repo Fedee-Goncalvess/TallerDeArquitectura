@@ -1,5 +1,4 @@
-#Ignora todos los scripts
-*.sh
+
 
 #Ignora todas las imagenes
 *.png

@@ -1,3 +1,17 @@
+Práctica 2
+Descripción tipo flujo de datos de un Flip Flop tipo D y su Testbench
+1 - Edite, compile y simule la entidad Test_DFF (testbench) para verificar el funcionamiento del Flip Flop tipo D.
+2 – Modifique el testbench para determinar:
+------- a) minimo periodo de reloj (o máxima frecuencia de trabajo),
+------- b) minimo ancho de pulso de preset y de clear,
+------- c) minimo tiempo de ‘setup’ y de ‘hold’ de datos.
+
+
+
+
+
+
+
 entity DFF is
     port (
         Preset : in Bit;

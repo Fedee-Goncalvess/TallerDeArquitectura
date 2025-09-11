@@ -1,0 +1,13 @@
+v 4
+file . "./Test_Latch8.vhd" "3f6306293125c567af1a0d73e81611820e383aaf" "20250911212823.427":
+  entity test_latch8 at 1( 0) + 0 on 17;
+  architecture driver of test_latch8 at 3( 28) + 0 on 18;
+file . "./Latch8.vhd" "1e239e24e902576032f3ecda0e72022ebc6e44ad" "20250911212823.426":
+  entity latch8 at 1( 0) + 0 on 15;
+  architecture estructura of latch8 at 5( 140) + 0 on 16;
+file . "./Test_DFF.vhd" "5d69b792c363caa20d59be5c990585d3b378b6f2" "20250911212823.426":
+  entity test_dff at 1( 0) + 0 on 13;
+  architecture driver of test_dff at 3( 25) + 0 on 14;
+file . "./DFF.vhd" "c71eec95dcf68588e232d9dbc74e4e3faf5bc0ff" "20250911212823.425":
+  entity dff at 1( 0) + 0 on 11;
+  architecture flujodedatos of dff at 12( 193) + 0 on 12;

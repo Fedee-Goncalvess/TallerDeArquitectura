@@ -19,9 +19,9 @@ begin
                 wait for 10 ns;		     -- 20ns
 -- Load the latch
                 Temp := "00010011";
-		Clk <= '0' after 1 ns, '1' after 4 ns,
-			'0' after 7 ns, '1' after 10 ns,
-			'0' after 13 ns, '1' after 16 ns;
+		Clk <= '0' after 1 ns, '1' after 5 ns,
+			'0' after 9 ns, '1' after 13 ns,
+			'0' after 17 ns, '1' after 21 ns;
                 for i in 1 to 8 loop
                   D <= Temp;
                   wait for 10 ns;

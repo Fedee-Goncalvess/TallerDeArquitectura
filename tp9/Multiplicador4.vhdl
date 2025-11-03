@@ -40,10 +40,27 @@ architecture Estructura of Multiplicador4 is
             Q => Acc
         ); -- Registro Acumulador de 8 bit
 
-        Adder: Adder8 port map (outB, Acc, Cin, Cout, Sum); -- Sumador de 8 bits
+        Adder: Adder8 port map (
+            A => outB, 
+            B => Acc, 
+            Cin => Cin, 
+            Cout => Cout, 
+            Sum => Sum
+        ); -- Sumador de 8 bits
 
         Stop <= not(outA(7) or outA(6) or outA(5) or outA(4) or outA(3) or outA(2) or outA(1) or outA(0));
-        Controlador: Controller port map (STB, CLK, outA & "00000001", Stop, Init, Shift, Add, Done);
+        LSB <= outA(0);
+
+        Controlador: Controller port map (
+            STB => STB, 
+            CLK => CLK, 
+            LSB => LSB, 
+            Stop => Stop, 
+            Init => Init, 
+            Shift => Shift, 
+            Add => Add, 
+            Done => Done
+        );
 
         Producto <= Acc;
 

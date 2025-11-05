@@ -8,17 +8,50 @@ entity Multiplicador4 is
 end Multiplicador4;
 
 architecture Estructura of Multiplicador4 is
-        signal Init, Shift, Add, Stop : Bit;
-        signal outA, outB : Bit_Vector(7 downto 0);
+
+    component ShiftN
+        port (CLK: in Bit;
+          CLR: in Bit;
+          LD: in Bit;
+          SH: in Bit;
+          DIR: in Bit;
+          D: in Bit_Vector;
+          Q: out Bit_Vector);
+    end component;
+
+    component fulladder
+        port (X, Y, Cin: in Bit;
+          Cout, Sum: out Bit);
+    end component;
+
+    component Adder8
+        port (A, B: in Bit_Vector(7 downto 0);
+          Cin: in Bit;
+          Cout: out Bit;
+          Sum: out Bit_Vector(7 downto 0));
+    end component;
+
+    component Controller
+        port (STB, CLK, LSB, Stop: in Bit;
+          Init, Shift, Add, Done: out Bit);
+    end component;
+
+        signal Init, Shift, Add, Stop , LSB: Bit;
+        signal outA, outB, sum, Acc : Bit_Vector(7 downto 0);
+        signal A_8bit, B_8bit : Bit_Vector(7 downto 0);
 
     begin
+        --tuve que agregar ceros para compatibilidad de 4->8bits
+        A_8bit <= "0000" & A;
+        B_8bit <= "0000" & B;
+
         RegA: ShiftN port map (
             CLK => CLK, 
             CLR => '0', 
             LD => Init, 
             SH => Shift, 
             DIR => '0', 
-            D => A, 
+            D => A_8bit,  
             Q => outA
         ); -- Registro A de 8 bits
 
@@ -28,23 +61,25 @@ architecture Estructura of Multiplicador4 is
             LD => Init, 
             SH => Shift, 
             DIR => '1', 
-            Q => B, 
-            D => outB
+            D => B_8bit, 
+            Q => outB
         ); -- Registro B de 8 bits
 
-        Acumulador: Latch8 port map (
+        Acumulador: ShiftN port map (
+            CLK => CLK, 
+            CLR => Init, 
+            LD => Add, 
+            SH => '0',
+            DIR => '0',
             D => Sum, 
-            Clk => CLK, 
-            Pre => Add, 
-            Clr => Init, 
             Q => Acc
         ); -- Registro Acumulador de 8 bit
 
         Adder: Adder8 port map (
             A => outB, 
             B => Acc, 
-            Cin => Cin, 
-            Cout => Cout, 
+            Cin => '0', 
+            Cout => open, 
             Sum => Sum
         ); -- Sumador de 8 bits
 
@@ -65,24 +100,4 @@ architecture Estructura of Multiplicador4 is
         Producto <= Acc;
 
     end Estructura;
-    
-    --------- TestBench --------
-    
-    entity Test_Multiplicador4 is end;
-    
-    architecture Driver of Test_Multiplicador4 is 
-    	component Multiplicador4
-    	port (
-    				
-    		);    	
-    	end component;
-    	
-    begin
-    	Stimulus: process
-    		begin
-    		--Multiplicar 3 x 8 y 8 x 3
-    		-- Clock de 8 x 6 MHz
-    		   		
-    		end process;
-    end;
     

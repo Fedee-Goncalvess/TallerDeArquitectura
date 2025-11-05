@@ -1,0 +1,100 @@
+[*]
+[*] GTKWave Analyzer v3.3.124 (w)1999-2025 BSI
+[*] Wed Nov  5 20:03:29 2025
+[*]
+[dumpfile] "/home/fede/Documentos/Ingenieria/3er Año/TallerDeArquitectura/ProyectosVHDL/tp9/simulacion.vcd"
+[dumpfile_mtime] "Wed Nov  5 19:14:57 2025"
+[dumpfile_size] 10812472
+[savefile] "/home/fede/Documentos/Ingenieria/3er Año/TallerDeArquitectura/ProyectosVHDL/tp9/Estencil_Waveform.gtkw"
+[timestart] 0
+[size] 1920 990
+[pos] 3749 -45
+*-24.419197 60600000 50000000 24700000 65000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[markername] ASTB = 1
+[markername] BCargo A y B
+[markername] CInit = 1
+[treeopen] test_multiplicador4.
+[treeopen] test_multiplicador4.prueba.
+[sst_width] 209
+[signals_width] 197
+[sst_expanded] 1
+[sst_vpaned_height] 292
+@200
+-Multiplicador 
+@22
++{In A} test_multiplicador4.a_tb[3:0]
++{In B} test_multiplicador4.b_tb[3:0]
+@28
++{Done} test_multiplicador4.done_tb
+@24
++{Producto} test_multiplicador4.producto_tb[7:0]
+@200
+-
+-Contorlador
+@28
++{STB} test_multiplicador4.stb_tb
++{LSB} test_multiplicador4.prueba.controlador.lsb
+test_multiplicador4.prueba.controlador.init
+test_multiplicador4.prueba.controlador.shift
+test_multiplicador4.prueba.controlador.stop
+test_multiplicador4.prueba.controlador.add
+@200
+-
+-Registros de 8bit
+@c00022
++{Out SRA} test_multiplicador4.prueba.rega.q[7:0]
+@28
+(0)test_multiplicador4.prueba.rega.q[7:0]
+(1)test_multiplicador4.prueba.rega.q[7:0]
+(2)test_multiplicador4.prueba.rega.q[7:0]
+(3)test_multiplicador4.prueba.rega.q[7:0]
+(4)test_multiplicador4.prueba.rega.q[7:0]
+(5)test_multiplicador4.prueba.rega.q[7:0]
+(6)test_multiplicador4.prueba.rega.q[7:0]
+(7)test_multiplicador4.prueba.rega.q[7:0]
+@1401200
+-group_end
+@22
++{Out SRB} test_multiplicador4.prueba.regb.q[7:0]
+@200
+-
+-Adder
+@24
++{In outB} test_multiplicador4.prueba.adder.a[7:0]
++{In Acc} test_multiplicador4.prueba.adder.b[7:0]
++{Out Sum} test_multiplicador4.prueba.adder.sum[7:0]
+@200
+-
+-Acumulador
+@c00024
++{In  Acumulador} test_multiplicador4.prueba.acumulador.d[7:0]
+@28
+(0)test_multiplicador4.prueba.acumulador.d[7:0]
+(1)test_multiplicador4.prueba.acumulador.d[7:0]
+(2)test_multiplicador4.prueba.acumulador.d[7:0]
+(3)test_multiplicador4.prueba.acumulador.d[7:0]
+(4)test_multiplicador4.prueba.acumulador.d[7:0]
+(5)test_multiplicador4.prueba.acumulador.d[7:0]
+(6)test_multiplicador4.prueba.acumulador.d[7:0]
+(7)test_multiplicador4.prueba.acumulador.d[7:0]
+@1401200
+-group_end
+@c00024
++{Out Acumulador} test_multiplicador4.prueba.acumulador.q[7:0]
+@28
+(0)test_multiplicador4.prueba.acumulador.q[7:0]
+(1)test_multiplicador4.prueba.acumulador.q[7:0]
+(2)test_multiplicador4.prueba.acumulador.q[7:0]
+(3)test_multiplicador4.prueba.acumulador.q[7:0]
+(4)test_multiplicador4.prueba.acumulador.q[7:0]
+(5)test_multiplicador4.prueba.acumulador.q[7:0]
+(6)test_multiplicador4.prueba.acumulador.q[7:0]
+(7)test_multiplicador4.prueba.acumulador.q[7:0]
+@1401200
+-group_end
+@29
++{LD} test_multiplicador4.prueba.acumulador.pre
+@28
++{CLR} test_multiplicador4.prueba.acumulador.clr
+[pattern_trace] 1
+[pattern_trace] 0

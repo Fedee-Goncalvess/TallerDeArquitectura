@@ -45,10 +45,10 @@
             B_tb <= "0000";
             wait for 25 ns;
 
-            -- Test 1: Multiplicar 3 × 8
-            A_tb <= work.Utils.Convert(3, 4);  -- utilizo Utils.Convert
-            B_tb <= work.Utils.Convert(8, 4);
-            resultado := 3 * 8;
+            -- Test 1: Multiplicar 8 × 3
+            A_tb <= work.Utils.Convert(8, 4);  -- utilizo Utils.Convert
+            B_tb <= work.Utils.Convert(3, 4);
+            resultado := 8 * 3;
         
             wait for 25 ns;
             STB_tb <= '1';  -- Pulso de Inicio
@@ -59,17 +59,17 @@
 
             --Verifico el resultado
             assert work.Utils.Convert(Producto_tb) = resultado
-            report "Error: 3 * 8 = " & Integer'image(work.Utils.Convert(Producto_tb)) & 
+            report "Error: 8 * 3 = " & Integer'image(work.Utils.Convert(Producto_tb)) & 
                    ", resultado correcto -> " & Integer'image(resultado)
             severity Error;
         
-            report "Resultado fue correcto: 3 * 8 = " & Integer'image(work.Utils.Convert(Producto_tb));
+            report "Resultado fue correcto: 8 * 3 = " & Integer'image(work.Utils.Convert(Producto_tb));
             wait for 100 ns;
 
-            -- Test 2: Multiplicar 8 × 3
-            A_tb <= work.Utils.Convert(8, 4);
-            B_tb <= work.Utils.Convert(3, 4);
-            resultado := 8 * 3;
+            -- Test 2: Multiplicar 3 × 8
+            A_tb <= work.Utils.Convert(3, 4);
+            B_tb <= work.Utils.Convert(8, 4);
+            resultado := 3 * 8;
         
             STB_tb <= '1';
             wait for 20 ns;
@@ -78,11 +78,11 @@
             wait until Done_tb = '1';
         
             assert work.Utils.Convert(Producto_tb) = resultado
-                report "Error: 8 * 3 = " & Integer'image(work.Utils.Convert(Producto_tb)) & 
+                report "Error: 3 * 8 = " & Integer'image(work.Utils.Convert(Producto_tb)) & 
                    ", resultado correcto " & Integer'image(resultado)
                 severity Error;
         
-            report "Resultado fue correcto: 8 * 3 = " & Integer'image(work.Utils.Convert(Producto_tb));
+            report "Resultado fue correcto: 3 * 8 = " & Integer'image(work.Utils.Convert(Producto_tb));
             wait for 100 ns;
             wait;
     	end process;

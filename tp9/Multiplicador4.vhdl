@@ -65,3 +65,24 @@ architecture Estructura of Multiplicador4 is
         Producto <= Acc;
 
     end Estructura;
+    
+    --------- TestBench --------
+    
+    entity Test_Multiplicador4 is end;
+    
+    architecture Driver of Test_Multiplicador4 is 
+    	component Multiplicador4
+    	port (
+    				
+    		);    	
+    	end component;
+    	
+    begin
+    	Stimulus: process
+    		begin
+    		--Multiplicar 3 x 8 y 8 x 3
+    		-- Clock de 8 x 6 MHz
+    		   		
+    		end process;
+    end;
+    

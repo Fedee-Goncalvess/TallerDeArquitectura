@@ -28,8 +28,8 @@
         );
 
         Clock : process
-        begin
-            work.Utils.Clock(CLK_tb, 10.416 ns, 10.416 ns);  -- 48MHz
+        begin 
+            work.Utils.Clock(CLK_tb, 6.578 ns, 6.578 ns);  -- 76MHz -> 13.15789 ns 
             wait;  
         end process;
 

@@ -1,0 +1,125 @@
+# ELBREAD: Elaboration process.
+# ELBREAD: Elaboration time 0.1 [s].
+acom -O3 -e 100 -work TDA_1819 -2002  $dsn/src/Usuario/usuario.vhd
+# Warning: DAGGEN_0523: The source is compiled without the -dbg switch. Line breakpoints and assertion debug will not be available.
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\usuario.vhd
+# Compile Entity "usuario"
+# Compile Architecture "USUARIO_ARCHITECTURE" of Entity "usuario"
+# Compile success 0 Errors 0 Warnings  Analysis time :  78.0 [ms]
+acom -O3 -e 100 -work TDA_1819 -2002  $dsn/src/Packages/const_reloj.vhd $dsn/src/Packages/tipos_cpu.vhd $dsn/src/Packages/tipos_memoria.vhd $dsn/src/Packages/const_memoria.vhd $dsn/src/Packages/const_registros.vhd $dsn/src/Packages/const_flags.vhd $dsn/src/Packages/const_buses.vhd $dsn/src/Packages/const_cpu.vhd $dsn/src/Packages/tipos_ensamblador.vhd $dsn/src/Packages/repert_cpu.vhd $dsn/src/Packages/tipos_ascii.vhd $dsn/src/Packages/const_ascii.vhd $dsn/src/Packages/func_ensamblador.vhd $dsn/src/Packages/const_ensamblador.vhd $dsn/src/Usuario/usuario.vhd $dsn/src/Usuario/PC/pc.vhd "$dsn/src/Usuario/PC/1. Ensamblador/ensamblador.vhd" "$dsn/src/Usuario/PC/2. CPU/cpu.vhd" "$dsn/src/Usuario/PC/2. CPU/1. UI/ui.vhd" "$dsn/src/Usuario/PC/2. CPU/1. UI/1. Máquina de Estados/states_machine.vhd" "$dsn/src/Usuario/PC/2. CPU/1. UI/2. Registros FP/registros_fp.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/etapas.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/1. Fetch/fetch.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/2. Decode/decode.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/3. Execute/execute.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/3. Execute/1. ALU/execute_alu.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/3. Execute/2. FPU/execute_fpu.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/4. Memory Access/memory_access.vhd" "$dsn/src/Usuario/PC/2. CPU/2. Etapas/5. Writeback/writeback.vhd" "$dsn/src/Usuario/PC/2. CPU/3. Pipeline_Registros/pipeline_registros.vhd" "$dsn/src/Usuario/PC/2. CPU/4. Atascos/atascos.vhd" "$dsn/src/Usuario/PC/2. CPU/4. Atascos/1. Estructurales/str_detector.vhd" "$dsn/src/Usuario/PC/2. CPU/4. Atascos/2. Datos/raw_waw_detector.vhd" "$dsn/src/Usuario/PC/2. CPU/5. CPU_Admin/cpu_admin.vhd" "$dsn/src/Usuario/PC/2. CPU/6. Reloj/reloj.vhd" "$dsn/src/Usuario/PC/2. CPU/7. Registros/registros.vhd" "$dsn/src/Usuario/PC/3. Buses_Admin/buses_admin.vhd" "$dsn/src/Usuario/PC/4. Memoria/memoria.vhd"
+# Warning: DAGGEN_0523: The source is compiled without the -dbg switch. Line breakpoints and assertion debug will not be available.
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_reloj.vhd
+# Compile Package "const_reloj"
+# Compile Package Body "const_reloj"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\tipos_cpu.vhd
+# Compile Package "tipos_cpu"
+# Compile Package Body "tipos_cpu"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\tipos_memoria.vhd
+# Compile Package "tipos_memoria"
+# Compile Package Body "tipos_memoria"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_memoria.vhd
+# Compile Package "const_memoria"
+# Compile Package Body "const_memoria"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_registros.vhd
+# Compile Package "const_registros"
+# Compile Package Body "const_registros"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_flags.vhd
+# Compile Package "const_flags"
+# Compile Package Body "const_flags"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_buses.vhd
+# Compile Package "const_buses"
+# Compile Package Body "const_buses"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_cpu.vhd
+# Compile Package "const_cpu"
+# Compile Package Body "const_cpu"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\tipos_ensamblador.vhd
+# Compile Package "tipos_ensamblador"
+# Compile Package Body "tipos_ensamblador"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\repert_cpu.vhd
+# Compile Package "repert_cpu"
+# Compile Package Body "repert_cpu"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\tipos_ascii.vhd
+# Compile Package "tipos_ascii"
+# Compile Package Body "tipos_ascii"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_ascii.vhd
+# Compile Package "const_ascii"
+# Compile Package Body "const_ascii"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\func_ensamblador.vhd
+# Compile Package "func_ensamblador"
+# Compile Package Body "func_ensamblador"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Packages\const_ensamblador.vhd
+# Compile Package "const_ensamblador"
+# Compile Package Body "const_ensamblador"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\usuario.vhd
+# Compile Entity "usuario"
+# Compile Architecture "USUARIO_ARCHITECTURE" of Entity "usuario"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\pc.vhd
+# Compile Entity "pc"
+# Compile Architecture "PC_ARCHITECTURE" of Entity "pc"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\1. Ensamblador\ensamblador.vhd
+# Compile Entity "ensamblador"
+# Compile Architecture "ENSAMBLADOR_ARCHITECTURE" of Entity "ensamblador"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\cpu.vhd
+# Compile Entity "cpu"
+# Compile Architecture "CPU_ARCHITECTURE" of Entity "cpu"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\1. UI\ui.vhd
+# Compile Entity "ui"
+# Compile Architecture "UI_ARCHITECTURE" of Entity "ui"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\1. UI\1. Máquina de Estados\states_machine.vhd
+# Compile Entity "states_machine"
+# Compile Architecture "STATES_MACHINE_ARCHITECTURE" of Entity "states_machine"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\1. UI\2. Registros FP\registros_fp.vhd
+# Compile Entity "registros_fp"
+# Compile Architecture "REGISTROS_FP_ARCHITECTURE" of Entity "registros_fp"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\etapas.vhd
+# Compile Entity "etapas"
+# Compile Architecture "ETAPAS_ARCHITECTURE" of Entity "etapas"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\1. Fetch\fetch.vhd
+# Compile Entity "fetch"
+# Compile Architecture "fetch_architecture" of Entity "fetch"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\2. Decode\decode.vhd
+# Compile Entity "decode"
+# Compile Architecture "decode_architecture" of Entity "decode"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\3. Execute\execute.vhd
+# Compile Entity "execute"
+# Compile Architecture "EXECUTE_ARCHITECTURE" of Entity "execute"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\3. Execute\1. ALU\execute_alu.vhd
+# Compile Entity "execute_alu"
+# Compile Architecture "EXECUTE_ALU_ARCHITECTURE" of Entity "execute_alu"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\3. Execute\2. FPU\execute_fpu.vhd
+# Compile Entity "execute_fpu"
+# Compile Architecture "EXECUTE_FPU_ARCHITECTURE" of Entity "execute_fpu"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\4. Memory Access\memory_access.vhd
+# Compile Entity "memory_access"
+# Compile Architecture "MEMORY_ACCESS_ARCHITECTURE" of Entity "memory_access"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\2. Etapas\5. Writeback\writeback.vhd
+# Compile Entity "writeback"
+# Compile Architecture "WRITEBACK_ARCHITECTURE" of Entity "writeback"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\3. Pipeline_Registros\pipeline_registros.vhd
+# Compile Entity "pipeline_registros"
+# Compile Architecture "pipeline_registros_architecture" of Entity "pipeline_registros"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\4. Atascos\atascos.vhd
+# Compile Entity "atascos"
+# Compile Architecture "ATASCOS_ARCHITECTURE" of Entity "atascos"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\4. Atascos\1. Estructurales\str_detector.vhd
+# Compile Entity "str_detector"
+# Compile Architecture "STR_DETECTOR_ARCHITECTURE" of Entity "str_detector"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\4. Atascos\2. Datos\raw_waw_detector.vhd
+# Compile Entity "raw_waw_detector"
+# Compile Architecture "RAW_WAW_DETECTOR_ARCHITECTURE" of Entity "raw_waw_detector"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\5. CPU_Admin\cpu_admin.vhd
+# Compile Entity "cpu_admin"
+# Compile Architecture "cpu_admin_architecture" of Entity "cpu_admin"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\6. Reloj\reloj.vhd
+# Compile Entity "reloj"
+# Compile Architecture "reloj_architecture" of Entity "reloj"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\2. CPU\7. Registros\registros.vhd
+# Compile Entity "registros"
+# Compile Architecture "REGISTROS_ARCHITECTURE" of Entity "registros"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\3. Buses_Admin\buses_admin.vhd
+# Compile Entity "buses_admin"
+# Compile Architecture "BUSES_ADMIN_ARCHITECTURE" of Entity "buses_admin"
+# File: c:\My_Designs\TDA_1819\TDA_1819\src\Usuario\PC\4. Memoria\memoria.vhd
+# Compile Entity "memoria"
+# Compile Architecture "MEMORIA_ARCHITECTURE" of Entity "memoria"
+# Compile success 0 Errors 0 Warnings  Analysis time :  4.0 [s]

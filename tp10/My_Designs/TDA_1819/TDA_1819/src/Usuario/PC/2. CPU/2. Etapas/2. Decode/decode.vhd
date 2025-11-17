@@ -1490,7 +1490,93 @@ begin
 				IDtoEX.op1 <= DataRegOutID(31 downto 0);
 				if (StallRAW = '0') and (Pipelining) then
 					StallBrEX <= '1';
-				end if;
+				end if;		
+			
+			---Agregamos PUSHH y POPH en el case de CodOp--------------
+				
+				WHEN PUSHH =>
+				    -- pushh rX: Apilar valor del registro rX (16 bits LSB)
+				    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
+				    IDtoMA.write <= '1';
+				    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));  -- 16 bits
+				    IDtoMA.source <= std_logic_vector(to_unsigned(MEM_ID, IDtoMA.source'length));
+				    
+				    -- 1. Leer el registro fuente (rX) para obtener el valor a apilar
+				    rfAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0)));  -- Registro fuente
+				    IdRegID <= std_logic_vector(to_unsigned(rfAux, IdRegID'length));
+				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));  -- Leer 16 bits
+				    EnableRegID <= '1';
+				    WAIT FOR 1 ns;
+				    EnableRegID <= '0';
+				    WAIT FOR 1 ns;
+				    
+				    -- 2. El valor a apilar son los 16 bits menos significativos
+				    IDtoMA.data.decode(15 downto 0) <= DataRegOutID(15 downto 0);
+				    IDtoMA.data.decode(31 downto 16) <= (others => '0');  -- Limpiar parte alta
+				    
+				    -- 3. Leer SP actual y calcular nueva dirección (SP - 2)
+				    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));  -- SP es de 16 bits
+				    EnableRegID <= '1';
+				    WAIT FOR 1 ns;
+				    EnableRegID <= '0';
+				    WAIT FOR 1 ns;
+				    
+				    -- 4. Calcular nueva dirección: SP - 2 (stack crece hacia abajo)
+				    addrAux := to_integer(unsigned(DataRegOutID(15 downto 0))) - 2;
+				    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
+				    
+				    -- 5. Actualizar SP: SP = SP - 2
+				    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
+				    IDtoWB.source <= std_logic_vector(to_unsigned(WB_ID, IDtoWB.source'length));
+				    IDtoWB.mode <= std_logic_vector(to_unsigned(ID_SP, IDtoWB.mode'length));
+				    IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16));
+				    IDtoWB.data.decode(31 downto 16) <= (others => '0');
+
+				WHEN POPH =>
+				    -- poph rX: Desapilar valor a registro rX (16 bits)
+				    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
+				    IDtoMA.read <= '1';
+				    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));  -- Leer 16 bits
+				    
+				    -- 1. Leer SP actual para obtener dirección de lectura
+				    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+				    EnableRegID <= '1';
+				    WAIT FOR 1 ns;
+				    EnableRegID <= '0';
+				    WAIT FOR 1 ns;
+				    
+				    -- 2. Leer de memoria en la dirección actual del SP
+				    addrAux := to_integer(unsigned(DataRegOutID(15 downto 0)));
+				    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
+				    
+				    -- 3. El resultado de la lectura va al registro destino
+				    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
+				    IDtoWB.source <= std_logic_vector(to_unsigned(WB_MEM, IDtoWB.source'length));
+				    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;  -- Registro destino
+				    IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
+				    
+				    -- 4. Actualizar SP: SP = SP + 2
+				    addrAux := addrAux + 2;  -- Stack pointer se incrementa
+				    IDtoEX.op <= std_logic_vector(to_unsigned(EX_NULL, IDtoEX.op'length));  -- Operación nula en EX
+				    IDtoEX.empty <= '0';
+				    IDtoEX.fp <= '0';
+				    IDtoEX.sign <= '0';
+				    
+				    -- Escribir nuevo valor de SP (esto podría hacerse en WB o con otra instrucción)
+				    -- Para simplificar, actualizamos SP directamente
+				    DataRegInID(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16));
+				    DataRegInID(31 downto 16) <= (others => '0');
+				    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+				    EnableRegID <= '1';
+				    WAIT FOR 1 ns;
+				    EnableRegID <= '0';
+				    WAIT FOR 1 ns;
+				
+			-----------------------------------------------------------	
+				
 			WHEN NOP =>
 				WAIT FOR 1 ns;
 			WHEN HALT =>  

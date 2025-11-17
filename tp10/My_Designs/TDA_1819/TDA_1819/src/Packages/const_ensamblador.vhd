@@ -84,6 +84,10 @@ PACKAGE const_ensamblador is
 	CONSTANT INSTCT_CODES:		instct_code_array(1 to CANT_INSTCT) := (NOP, HALT);
 	CONSTANT INSTCT_SIZES:		instct_size_array(1 to CANT_INSTCT) := (2, 2);
 	
+	CONSTANT INSTMP_NAMES:		instmp_name_array(1 to CANT_INSTMP) := ("pushh", "poph ");
+	CONSTANT INSTMP_CODES:		instmp_code_array(1 to CANT_INSTMP) := (PUSHH, POPH);
+	CONSTANT INSTMP_SIZES:		instmp_size_array(1 to CANT_INSTMP) := (3, 3);
+	
 	
 END const_ensamblador;
 

@@ -120,9 +120,9 @@ FileTimeLow=1580459503
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\const_ensamblador.vhd]
-FileTimeLow=1580489300
-Status=Compiled
-FileTimeHigh=31217653
+FileTimeLow=1595850334
+Status=Modified
+FileTimeHigh=31217659
 [COMPILESTATUS|.\src\Packages\const_flags.vhd]
 FileTimeLow=1580499225
 Status=Compiled

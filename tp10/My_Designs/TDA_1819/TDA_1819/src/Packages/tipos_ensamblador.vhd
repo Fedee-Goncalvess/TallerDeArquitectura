@@ -40,7 +40,12 @@ PACKAGE tipos_ensamblador is
 	
 	TYPE instct_name_array IS ARRAY (POSITIVE RANGE <>) OF STRING(1 to 4);
 	TYPE instct_code_array IS ARRAY (POSITIVE RANGE <>) OF STD_LOGIC_VECTOR(7 downto 0);
-	TYPE instct_size_array IS ARRAY (POSITIVE RANGE <>) OF INTEGER;
+	TYPE instct_size_array IS ARRAY (POSITIVE RANGE <>) OF INTEGER;		   
+	
+	--Definimos la cantidad de parametros y caracteres de pushh y poph para el ensamblador
+	TYPE instmp_name_array IS ARRAY (POSITIVE RANGE <>) OF STRING(1 to 5);
+	TYPE instmp_code_array IS ARRAY (POSITIVE RANGE <>) OF STD_LOGIC_VECTOR(7 downto 0);
+	TYPE instmp_size_array IS ARRAY (POSITIVE RANGE <>) OF INTEGER;		   
 	
 	TYPE variable_record IS RECORD
 		name: string(1 to 10);

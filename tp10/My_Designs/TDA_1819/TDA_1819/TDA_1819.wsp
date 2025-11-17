@@ -120,7 +120,7 @@ FileTimeLow=1580459503
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\const_ensamblador.vhd]
-FileTimeLow=1640162356
+FileTimeLow=3984618145
 Status=Modified
 FileTimeHigh=31217660
 [COMPILESTATUS|.\src\Packages\const_flags.vhd]
@@ -156,9 +156,9 @@ FileTimeLow=1580538957
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\tipos_ensamblador.vhd]
-FileTimeLow=1580548888
-Status=Compiled
-FileTimeHigh=31217653
+FileTimeLow=3962059716
+Status=Modified
+FileTimeHigh=31217660
 [COMPILESTATUS|.\src\Packages\tipos_memoria.vhd]
 FileTimeLow=1580558821
 Status=Compiled

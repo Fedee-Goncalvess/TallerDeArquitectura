@@ -177,7 +177,16 @@ begin
 				EnableRegIFIRWr <= '1';
 				WAIT FOR 1 ns;
 				EnableRegIFIRWr <= '0';
-				WAIT FOR 1 ns;
+				WAIT FOR 1 ns;		 
+				
+				---Acá agrego una sección que trata instrucciones de 3 bytes especificamente
+				if (InstSize = 3) then
+    			-- Instrucciones de pila: pasar 2 bytes a decode [OPCODE | REGISTRO]
+    				IFtoID.package1(15 downto 8) <= InstDataBusInCpu(15 downto 8);   -- Código OP
+    				IFtoID.package1(7 downto 0)  <= InstDataBusInCpu(23 downto 16);  -- Registro
+    				IFtoID.package1(31 downto 16) <= (others => '0');  -- Limpiar parte alta
+				else
+				
 				if (SizeDataID > 0) then
 					for i in 31 downto SizeDataID*8 loop
 						IFtoID.package1(i) <= 'Z';
@@ -186,6 +195,8 @@ begin
 						IFtoID.package1(i) <= InstDataBusInCpu(i+8);
 					end loop;
 				end if;
+				
+				end if; --Este end if fue agregado como para tratar el caso de 3 bytes.
 			else
 				InstAddrBusCpu <= std_logic_vector(to_unsigned(Local_IP+1, InstAddrBusCpu'length));
 				InstSizeBusCpu <= std_logic_vector(to_unsigned(4, InstSizeBusCpu'length));

@@ -120,9 +120,9 @@ FileTimeLow=1580459503
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\const_ensamblador.vhd]
-FileTimeLow=3984618145
-Status=Modified
-FileTimeHigh=31217660
+FileTimeLow=1719423315
+Status=Compiled
+FileTimeHigh=31217665
 [COMPILESTATUS|.\src\Packages\const_flags.vhd]
 FileTimeLow=1580499225
 Status=Compiled
@@ -156,16 +156,16 @@ FileTimeLow=1580538957
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\tipos_ensamblador.vhd]
-FileTimeLow=3962059716
-Status=Modified
-FileTimeHigh=31217660
+FileTimeLow=1708790506
+Status=Compiled
+FileTimeHigh=31217665
 [COMPILESTATUS|.\src\Packages\tipos_memoria.vhd]
 FileTimeLow=1580558821
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Usuario\PC\1. Ensamblador\ensamblador.vhd]
-FileTimeLow=126949033
-Status=Modified
+FileTimeLow=1725526663
+Status=Compiled
 FileTimeHigh=31217665
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\1. UI\1. Máquina de Estados\states_machine.vhd]
 FileTimeLow=1580628358
@@ -180,9 +180,9 @@ FileTimeLow=1580648223
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\1. Fetch\fetch.vhd]
-FileTimeLow=1580668098
-Status=Compiled
-FileTimeHigh=31217653
+FileTimeLow=2957170138
+Status=Modified
+FileTimeHigh=31217674
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\2. Decode\decode.vhd]
 FileTimeLow=1580678026
 Status=Compiled

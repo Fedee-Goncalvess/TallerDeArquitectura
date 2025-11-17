@@ -2129,6 +2129,120 @@ begin
 		end if;
 	END checkInstCt;
 	
+	--Agregamos al ensamblador un procedimiento que verifique si se tratan de instrucciones de manejo de pila
+	
+	PROCEDURE checkInstMp(CONSTANT cadena, INSTMP_NAME: IN STRING; 
+                      CONSTANT INSTMP_CODE: STD_LOGIC_VECTOR(7 downto 0); CONSTANT INSTMP_SIZE: IN INTEGER; 
+                      i: INOUT INTEGER; check: INOUT BOOLEAN; CONSTANT nombre: IN STRING; 
+                      CONSTANT num_linea: IN INTEGER; CONSTANT addr_linea: IN INTEGER) IS
+
+    VARIABLE match: BOOLEAN := true;
+    VARIABLE indice: INTEGER := i;
+    VARIABLE numReg: INTEGER;
+                           
+BEGIN
+    for j in INSTMP_NAME'RANGE loop 
+        if (INSTMP_NAME(j) = ' ') then
+            exit;
+        end if;
+        if (cadena(indice) /= INSTMP_NAME(j)) then
+            match := false;
+            exit;
+        end if;
+        indice := indice + 1;
+    end loop;
+    
+    if (match) then
+        if (cadena(indice) /= ' ') then
+            check := false;
+            return;
+        end if;
+        
+        while (cadena(indice) = ' ') loop
+            indice := indice + 1;
+        end loop;
+        
+        -- Para pushh y poph, verificamos el registro operando
+        if (cadena(indice) /= 'r') then
+            report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el operando debe ser un registro"
+            severity FAILURE;
+        end if;
+        
+        numReg := 0;
+        indice := indice + 1;
+        
+        if (not isNumber(cadena(indice))) then
+            report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro se encuentra incorrectamente declarado"
+            severity FAILURE;
+        end if;
+        
+        for j in DIGITS_DEC'range loop
+            if (cadena(indice) = DIGITS_DEC(j)) then
+                numReg := numReg + j-1;
+                exit;
+            end if;
+        end loop;
+        
+        indice := indice + 1;
+        
+        -- Verificar si es un registro de dos dígitos (r10-r15)
+        if (cadena(indice) /= ' ') then
+            if (cadena(indice-1) /= '1') then
+                report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro se encuentra incorrectamente declarado"
+                severity FAILURE;
+            end if;
+            case cadena(indice) is
+                when '0' to '5' =>
+                    for j in DIGITS_DEC'range loop
+                        if (cadena(indice) = DIGITS_DEC(j)) then
+                            numReg := 10 + j-1;
+                            exit;
+                        end if;
+                    end loop;
+                    indice := indice + 1;
+                when others =>
+                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro se encuentra incorrectamente declarado"
+                    severity FAILURE;
+            end case;
+        end if;
+        
+        -- Generar código máquina
+        InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea, InstAddrBusComp'length));
+        InstDataBusOutComp <= std_logic_vector(to_unsigned(INSTMP_SIZE, InstDataBusOutComp'length));
+        InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
+        InstCtrlBusComp <= WRITE_MEMORY;
+        EnableCompToInstMem <= '1';
+        WAIT FOR 1 ns;
+        EnableCompToInstMem <= '0';     
+        WAIT FOR 1 ns;
+        
+        InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+1, InstAddrBusComp'length));
+        InstDataBusOutComp <= "ZZZZZZZZZZZZZZZZZZZZZZZZ" & INSTMP_CODE;
+        InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
+        InstCtrlBusComp <= WRITE_MEMORY;
+        EnableCompToInstMem <= '1';
+        WAIT FOR 1 ns;
+        EnableCompToInstMem <= '0';     
+        WAIT FOR 1 ns;
+        
+        InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+2, InstAddrBusComp'length));
+        InstDataBusOutComp <= std_logic_vector(to_unsigned(numReg, InstDataBusOutComp'length));
+        InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
+        InstCtrlBusComp <= WRITE_MEMORY;
+        EnableCompToInstMem <= '1';
+        WAIT FOR 1 ns;
+        EnableCompToInstMem <= '0'; 
+        WAIT FOR 1 ns;
+        
+        i := indice;
+        check := true;
+    else
+        check := false;
+    end if;
+END checkInstMp;
+	
+	---------------------------------------------------------------------------------------------------------
+	
 	
 	PROCEDURE checkCode(labels: INOUT label_records; cant_labels: INOUT INTEGER;
 						offsets: INOUT offset_records; cant_offsets: INOUT INTEGER;

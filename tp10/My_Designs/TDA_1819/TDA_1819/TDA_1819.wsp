@@ -164,9 +164,9 @@ FileTimeLow=1580558821
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Usuario\PC\1. Ensamblador\ensamblador.vhd]
-FileTimeLow=1655573738
+FileTimeLow=126949033
 Status=Modified
-FileTimeHigh=31217664
+FileTimeHigh=31217665
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\1. UI\1. Máquina de Estados\states_machine.vhd]
 FileTimeLow=1580628358
 Status=Compiled

@@ -2340,7 +2340,21 @@ END checkInstMp;
 					exit;
 				end if;
 			end loop;
-		end if;
+		end if;			
+		---ACA agregamos el llamado a checkInstMp para que verifique tambien si se tratan de instrucciones de manejo de pila
+		if (not check) then
+        for j in INSTMP_NAMES'RANGE loop
+            checkInstMp(cadena, INSTMP_NAMES(j), INSTMP_CODES(j), INSTMP_SIZES(j), i, check, nombre, num_linea, addr_linea);
+            if (check) then    
+                addr_linea := addr_linea + INSTMP_SIZES(j);
+                for k in INSTMP_NAMES(j)'RANGE loop
+                    CompToSM.name_inst(k) <= INSTMP_NAMES(j)(k);
+                end loop;
+                exit;
+            end if;
+        end loop;
+    end if;
+		----------------------------------------------------------------------------------------------------------------
 		if (not check) then
 			report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': la instrucción declarada no es válida"
 			severity FAILURE;

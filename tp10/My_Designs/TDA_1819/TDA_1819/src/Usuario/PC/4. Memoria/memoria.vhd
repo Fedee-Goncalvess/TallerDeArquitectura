@@ -103,53 +103,76 @@ architecture MEMORIA_ARCHITECTURE of memoria is
 	
 begin
 
-	
+	---Modifico DataMemory
 	DataMemory: PROCESS
-	
-	VARIABLE First: BOOLEAN := true;
-	VARIABLE intAddress: INTEGER; 
-	VARIABLE accessSize: INTEGER;
-	VARIABLE iDataBus: INTEGER;
-	
-	BEGIN
-		WAIT UNTIL rising_edge(EnableInDataMem);
-		if (First) then
-			First := false;
-			EnableDataMemToCpu <= '0';
-			WAIT FOR 1 ps;
-		end if;
-		intAddress := to_integer(unsigned(DataAddrBusMem)); 
-		accessSize := to_integer(unsigned(DataSizeBusMem));
-		iDataBus := 0;
-		if ((intAddress < DATA_BEGIN) or (intAddress > INST_BEGIN-1)) then
-			report "Error: la dirección seleccionada no pertenece a la memoria de datos"
-			severity FAILURE;
-		end if;
-		if (DataCtrlBusMem = READ_MEMORY) then
-			for i in 0 to accessSize-1 loop
-				for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
-					DataDataBusOutMem(iDataBus) <= Data_Memory(intAddress)(j);
-					iDataBus := iDataBus + 1;
-				end loop;
-				intAddress := intAddress + 1;
-			end loop;
-			EnableDataMemToCpu <= '1';
-			WAIT FOR 1 ps;
-			EnableDataMemToCpu <= '0';
-		elsif (DataCtrlBusMem = WRITE_MEMORY) then 
-			for i in 0 to accessSize-1 loop
-				for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
-					Data_Memory(intAddress)(j) <= DataDataBusInMem(iDataBus);
-					--Memory(intAddress)(j) <= DataDataBusInMem(iDataBus);
-					iDataBus := iDataBus + 1;
-				end loop;
-				intAddress := intAddress + 1;
-			end loop;
-		else
-			report "Error: el bus de control de la memoria de datos no posee un valor válido"
-			severity FAILURE;
-		end if;
-	END PROCESS DataMemory;
+
+VARIABLE First: BOOLEAN := true;
+VARIABLE intAddress: INTEGER; 
+VARIABLE accessSize: INTEGER;
+VARIABLE iDataBus: INTEGER;
+
+BEGIN
+    WAIT UNTIL rising_edge(EnableInDataMem);
+    if (First) then
+        First := false;
+        EnableDataMemToCpu <= '0';
+        WAIT FOR 1 ps;
+    end if;
+    
+    intAddress := to_integer(unsigned(DataAddrBusMem)); 
+    accessSize := to_integer(unsigned(DataSizeBusMem));
+    iDataBus := 0;
+    
+    -- ? VERIFICACIÓN CORRECTA: Datos O Stack
+    if not((intAddress >= DATA_BEGIN and intAddress <= INST_BEGIN-1) or
+           (intAddress >= STACK_BEGIN and intAddress <= MEMORY_END)) then
+        report "Error: la dirección " & integer'image(intAddress) & 
+               " no pertenece a la memoria de datos (" & 
+               integer'image(DATA_BEGIN) & " a " & integer'image(INST_BEGIN-1) & 
+               ") ni a la stack (" & integer'image(STACK_BEGIN) & 
+               " a " & integer'image(MEMORY_END) & ")"
+        severity FAILURE;
+    end if;
+    
+    if (DataCtrlBusMem = READ_MEMORY) then
+        for i in 0 to accessSize-1 loop
+            for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
+                -- ? DECISIÓN: ¿Es dato o stack?
+                if (intAddress >= STACK_BEGIN) then
+                    -- ? ACCESO A STACK
+                    DataDataBusOutMem(iDataBus) <= Stack_Memory(intAddress)(j);
+                else
+                    -- ? ACCESO A DATOS
+                    DataDataBusOutMem(iDataBus) <= Data_Memory(intAddress)(j);
+                end if;
+                iDataBus := iDataBus + 1;
+            end loop;
+            intAddress := intAddress + 1;
+        end loop;
+        EnableDataMemToCpu <= '1';
+        WAIT FOR 1 ps;
+        EnableDataMemToCpu <= '0';
+        
+    elsif (DataCtrlBusMem = WRITE_MEMORY) then 
+        for i in 0 to accessSize-1 loop
+            for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
+                -- ? DECISIÓN: ¿Es dato o stack?
+                if (intAddress >= STACK_BEGIN) then
+                    -- ? ESCRITURA EN STACK (para pushh)
+                    Stack_Memory(intAddress)(j) <= DataDataBusInMem(iDataBus);
+                else
+                    -- ? ESCRITURA EN DATOS
+                    Data_Memory(intAddress)(j) <= DataDataBusInMem(iDataBus);
+                end if;
+                iDataBus := iDataBus + 1;
+            end loop;
+            intAddress := intAddress + 1;
+        end loop;
+    else
+        report "Error: el bus de control de la memoria de datos no posee un valor válido"
+        severity FAILURE;
+    end if;
+END PROCESS DataMemory;
 	
 	
 	InstMemory: PROCESS

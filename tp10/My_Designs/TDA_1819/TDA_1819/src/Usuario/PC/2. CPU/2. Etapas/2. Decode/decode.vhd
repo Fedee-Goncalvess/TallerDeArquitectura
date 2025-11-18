@@ -1529,7 +1529,7 @@ begin
 				    -- 5. Actualizar SP: SP = SP - 2
 				    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
 				    IDtoWB.source <= std_logic_vector(to_unsigned(WB_ID, IDtoWB.source'length));
-				    IDtoWB.mode <= std_logic_vector(to_unsigned(ID_SP, IDtoWB.mode'length));
+				    IDtoWB.mode <= std_logic_vector(to_unsigned(ID_SP+1, IDtoWB.mode'length));
 				    IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16));
 				    IDtoWB.data.decode(31 downto 16) <= (others => '0');
 

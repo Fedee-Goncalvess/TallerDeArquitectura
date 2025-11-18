@@ -133,7 +133,7 @@ Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\const_registros.vhd]
 FileTimeLow=1580509164
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\const_reloj.vhd]
 FileTimeLow=1580519093
@@ -153,7 +153,7 @@ Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Packages\tipos_cpu.vhd]
 FileTimeLow=231625515
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217880
 [COMPILESTATUS|.\src\Packages\tipos_ensamblador.vhd]
 FileTimeLow=1708790506
@@ -185,7 +185,7 @@ Status=Compiled
 FileTimeHigh=31217675
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\2. Decode\decode.vhd]
 FileTimeLow=3501037895
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217881
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\3. Execute\1. ALU\execute_alu.vhd]
 FileTimeLow=1580697892
@@ -204,9 +204,9 @@ FileTimeLow=1580737625
 Status=Compiled
 FileTimeHigh=31217653
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\5. Writeback\writeback.vhd]
-FileTimeLow=1830740369
-Status=Modified
-FileTimeHigh=31217882
+FileTimeLow=927259149
+Status=Compiled
+FileTimeHigh=31217883
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\etapas.vhd]
 FileTimeLow=1580757498
 Status=Compiled

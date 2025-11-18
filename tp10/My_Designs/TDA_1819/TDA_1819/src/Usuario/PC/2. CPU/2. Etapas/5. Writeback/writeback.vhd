@@ -38,7 +38,9 @@
 library TDA_1819;	
 use TDA_1819.const_buses.all;
 use TDA_1819.const_cpu.all; 
-use TDA_1819.tipos_cpu.all; 
+use TDA_1819.tipos_cpu.all; 	  
+--Se agrega const_registros para la implementación temporal de poph, que pueda acceder al ID_SP
+use TDA_1819.const_registros.all;
 
 
 LIBRARY IEEE;

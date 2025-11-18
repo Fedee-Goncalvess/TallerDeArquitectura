@@ -123,6 +123,9 @@ begin
 		IDtoWB.datasize <= "ZZZZ";
 		IDtoWB.source <= std_logic_vector(to_unsigned(WB_NULL, IDtoWB.source'length));
 		IDtoWB.data.decode <= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+		--- Se inicializan los campos del record que se agregaron temporalmente para el funcionamiento de poph
+		IDtoWB.is_poph <= '0';           -- Inicializar nuevo campo
+    	IDtoWB.new_sp <= (others => '0'); -- Inicializar nuevo campo
 	End Initialize;	
 	
 	VARIABLE First:			BOOLEAN := true;
@@ -1534,46 +1537,38 @@ begin
 				    IDtoWB.data.decode(31 downto 16) <= (others => '0');
 
 				WHEN POPH =>
-				    -- poph rX: Desapilar valor a registro rX (16 bits)
-				    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
-				    IDtoMA.read <= '1';
-				    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));  -- Leer 16 bits
-				    
-				    -- 1. Leer SP actual para obtener dirección de lectura
-				    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
-				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
-				    EnableRegID <= '1';
-				    WAIT FOR 1 ns;
-				    EnableRegID <= '0';
-				    WAIT FOR 1 ns;
-				    
-				    -- 2. Leer de memoria en la dirección actual del SP
-				    addrAux := to_integer(unsigned(DataRegOutID(15 downto 0)));
-				    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
-				    
-				    -- 3. El resultado de la lectura va al registro destino
-				    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
-				    IDtoWB.source <= std_logic_vector(to_unsigned(WB_MEM, IDtoWB.source'length));
-				    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;  -- Registro destino
-				    IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
-				    
-				    -- 4. Actualizar SP: SP = SP + 2
-				    addrAux := addrAux + 2;  -- Stack pointer se incrementa
-				    IDtoEX.op <= std_logic_vector(to_unsigned(EX_NULL, IDtoEX.op'length));  -- Operación nula en EX
-				    IDtoEX.empty <= '0';
-				    IDtoEX.fp <= '0';
-				    IDtoEX.sign <= '0';
-				    
-				    -- Escribir nuevo valor de SP (esto podría hacerse en WB o con otra instrucción)
-				    -- Para simplificar, actualizamos SP directamente
-				    DataRegInID(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16));
-				    DataRegInID(31 downto 16) <= (others => '0');
-				    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
-				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
-				    EnableRegID <= '1';
-				    WAIT FOR 1 ns;
-				    EnableRegID <= '0';
-				    WAIT FOR 1 ns;
+    -- poph rX: Desapilar valor a registro rX (16 bits)
+    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
+    IDtoMA.read <= '1';
+    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));
+    
+    -- 1. Leer SP actual para obtener dirección de lectura
+    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+    EnableRegID <= '1';
+    WAIT FOR 1 ns;
+    EnableRegID <= '0';
+    WAIT FOR 1 ns;
+    
+    -- 2. Leer de memoria en la dirección actual del SP
+    addrAux := to_integer(unsigned(DataRegOutID(15 downto 0)));
+    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
+    
+    -- 3. El resultado de la lectura va al registro destino
+    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
+    IDtoWB.source <= std_logic_vector(to_unsigned(WB_MEM, IDtoWB.source'length));
+    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
+    IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
+    
+    -- 4. Calcular nuevo SP: SP + 2
+    addrAux := addrAux + 2;
+    
+    -- 5. Marcar como POPH y guardar nuevo valor de SP
+    IDtoWB.is_poph <= '1';
+    IDtoWB.new_sp <= std_logic_vector(to_unsigned(addrAux, 16));
+    
+    -- 6. Inicializar el resto de campos (importante)
+    IDtoWB.id <= std_logic_vector(to_unsigned(idAux, IDtoWB.id'length));
 				
 			-----------------------------------------------------------	
 				

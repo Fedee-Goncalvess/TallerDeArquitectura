@@ -101,6 +101,9 @@ begin
 		RecInWBAux.datasize <= "ZZZZ";
 		RecInWBAux.source <= "ZZZZ";
 		RecInWBAux.data.decode <= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+		--- Se inicializan los campos agregados temporalmente para el funcionamiento del poph
+		RecInWBAux.is_poph <= '0';
+    	RecInWBAux.new_sp <= (others => '0');
 	END InitializeRecInWBAux;
 	
 	PROCEDURE InitializeRecInWBAux2 IS
@@ -111,6 +114,8 @@ begin
 		RecInWBAux2.datasize <= "ZZZZ";
 		RecInWBAux2.source <= "ZZZZ";
 		RecInWBAux2.data.decode <= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+		RecInWBAux2.is_poph <= '0';
+    	RecInWBAux2.new_sp <= (others => '0');
 	END InitializeRecInWBAux2;
 	
 	BEGIN 
@@ -251,6 +256,19 @@ begin
 			WAIT FOR 1 ns;
 			EnableRegWB <= '0';
 			WAIT FOR 1 ns;
+			------Implementación temporal para el caso de POPH, utilizar un ciclo más para actualizar SP
+			----- SEGUNDA ESCRITURA: Actualizar SP si es POPH
+		    if (RecInWBAct.is_poph = '1') then
+		        IdRegWB <= std_logic_vector(to_unsigned(ID_SP, IdRegWB'length));
+		        SizeRegWB <= std_logic_vector(to_unsigned(2, SizeRegWB'length));
+		        DataRegInWB <= (others => '0');
+		        DataRegInWB(15 downto 0) <= RecInWBAct.new_sp;
+		        EnableRegWB <= '1';
+		        WAIT FOR 1 ns;
+		        EnableRegWB <= '0';
+		        WAIT FOR 1 ns;
+		    end if;
+			
 		end if;
 		--IdRegDecWrPend <= RecInWB.mode;
 		--EnableDecWrPend <= '1';

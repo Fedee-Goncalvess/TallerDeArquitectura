@@ -16,5 +16,10 @@ val3:		.word	300
 		nop
 		nop
 		pushh r3
+		nop
+		nop
+		poph r1
+		nop
+		nop
 		halt
 		

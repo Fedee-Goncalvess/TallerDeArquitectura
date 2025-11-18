@@ -95,7 +95,10 @@ PACKAGE tipos_cpu is
 		id: std_logic_vector(7 downto 0);
 		datasize: std_logic_vector(3 downto 0);
 		source: std_logic_vector(3 downto 0);
-		data: writeback_data;
+		data: writeback_data;			  
+		---Se agregan estos elementos temporalmente para el funcionamiento del poph
+		is_poph: std_logic;           -- Nuevo: indica instrucción POPH
+    	new_sp: std_logic_vector(15 downto 0); -- Nuevo: valor de SP actualizado
 	END RECORD;
 	
 	TYPE execute_records IS ARRAY (NATURAL RANGE <>) OF execute_record;

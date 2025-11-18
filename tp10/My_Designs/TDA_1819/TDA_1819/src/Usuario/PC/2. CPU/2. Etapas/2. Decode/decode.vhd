@@ -1502,7 +1502,7 @@ begin
 				    IDtoMA.source <= std_logic_vector(to_unsigned(MEM_ID, IDtoMA.source'length));
 				    
 				    -- 1. Leer el registro fuente (rX) para obtener el valor a apilar
-				    rfAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0)));  -- Registro fuente
+				    rfAux := to_integer(unsigned(IFtoIDLocal.package1(15 downto 8)));  -- Registro fuente
 				    IdRegID <= std_logic_vector(to_unsigned(rfAux, IdRegID'length));
 				    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));  -- Leer 16 bits
 				    EnableRegID <= '1';

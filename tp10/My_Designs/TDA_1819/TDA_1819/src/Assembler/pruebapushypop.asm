@@ -12,7 +12,9 @@ val3:		.word	300
 		pushh r1
 		nop
 		nop
-		nop
 		pushh r2
+		nop
+		nop
+		pushh r3
 		halt
 		

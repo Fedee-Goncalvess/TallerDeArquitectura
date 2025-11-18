@@ -18,8 +18,54 @@ val3:		.word	300
 		pushh r3
 		nop
 		nop
+		pushh r0
+		nop
+		nop
+		nop
 		poph r1
 		nop
 		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		poph r1
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		poph r1
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop	
 		halt
 		

@@ -184,9 +184,9 @@ FileTimeLow=532814856
 Status=Compiled
 FileTimeHigh=31217675
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\2. Decode\decode.vhd]
-FileTimeLow=3501037895
+FileTimeLow=2960718733
 Status=Compiled
-FileTimeHigh=31217881
+FileTimeHigh=31217889
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\3. Execute\1. ALU\execute_alu.vhd]
 FileTimeLow=1580697892
 Status=Compiled

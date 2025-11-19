@@ -376,7 +376,15 @@ begin
 				rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
 				IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
 				addrAux := to_integer(unsigned(IFtoIDLocal.package1(23 downto 8)));
-				IdRegID <= IFtoIDLocal.package2(7 downto 0);
+				-- DETECTAR SI ES SP (ID 37) O REGISTRO NORMAL
+			    if (to_integer(unsigned(IFtoIDLocal.package2(7 downto 0))) = ID_SP) then
+			        -- Usar SP como registro base
+			        IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+			    else
+			        -- Comportamiento normal
+			        IdRegID <= IFtoIDLocal.package2(7 downto 0);
+			    end if;
+				-----------------------------------------------------------------------
 				SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
 				EnableRegID <= '1';
 				WAIT FOR 1 ns;
@@ -399,7 +407,15 @@ begin
 				IDtoMA.data.decode(15 downto 0) <= DataRegOutID(15 downto 0);
 				if (StallRAW = '0') then
 					addrAux := to_integer(unsigned(IFtoIDLocal.package1(23 downto 8)));
-					IdRegID <= IFtoIDLocal.package2(7 downto 0);
+					-- DETECTAR SI ES SP (ID 37) O REGISTRO NORMAL
+			        if (to_integer(unsigned(IFtoIDLocal.package2(7 downto 0))) = ID_SP) then
+			            -- Usar SP como registro base
+			            IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+			        else
+			            -- Comportamiento normal
+			            IdRegID <= IFtoIDLocal.package2(7 downto 0);
+			        end if;
+					----------------------------------------
 					SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
 					EnableRegID <= '1';
 					WAIT FOR 1 ns;

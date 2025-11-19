@@ -1557,7 +1557,7 @@ begin
     -- 3. El resultado de la lectura va al registro destino
     IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
     IDtoWB.source <= std_logic_vector(to_unsigned(WB_MEM, IDtoWB.source'length));
-    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
+    rdAux := to_integer(unsigned(IFtoIDLocal.package1(15 downto 8))) + 1;
     IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
     
     -- 4. Calcular nuevo SP: SP + 2

@@ -842,7 +842,7 @@ begin
     VARIABLE offsetValue: INTEGER := 0;
     VARIABLE is_negative: BOOLEAN := false;
     VARIABLE base10: INTEGER := 1;
-    VARIABLE is_sp_addressing: BOOLEAN := false;
+    VARIABLE is_register_addressing: BOOLEAN := false;
                            
 BEGIN
     for j in INSTTD_NAME'RANGE loop
@@ -932,10 +932,10 @@ BEGIN
         indice := indice + 1; 
         
         if (INSTTD_SIZE = 6) then
-            -- Verificar si es direccionamiento con SP (0(sp), -2(sp), etc.)
+            -- Verificar si es direccionamiento con registro (0(r0), -2(r1), 4(r15), etc.)
             if (cadena(indice) = '-' or isNumber(cadena(indice))) then
-                -- Es direccionamiento con SP: offset(sp)
-                is_sp_addressing := true;
+                -- Es direccionamiento con registro: offset(rX)
+                is_register_addressing := true;
                 
                 -- Leer offset
                 if (cadena(indice) = '-') then
@@ -963,7 +963,7 @@ BEGIN
                     offsetValue := -offsetValue;
                 end if;
                 
-                -- Verificar que sigue '(sp)'
+                -- Verificar que sigue '(r'
                 if (cadena(indice) /= '(') then
                     report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': se esperaba '(' después del offset"
                     severity FAILURE;
@@ -971,25 +971,55 @@ BEGIN
                 
                 indice := indice + 1;
                 
-                if (cadena(indice) /= 's' or cadena(indice+1) /= 'p') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': solo se permite sp como registro base"
+                -- Leer registro base (puede ser r0-r15 o sp)
+                if (cadena(indice) = 's' and cadena(indice+1) = 'p') then
+                    -- Registro sp
+                    addrReg := 14;
+                    indice := indice + 2;
+                elsif (cadena(indice) = 'r') then
+                    -- Registro normal r0-r15
+                    indice := indice + 1;
+                    
+                    if (not isNumber(cadena(indice))) then
+                        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base se encuentra incorrectamente declarado"
+                        severity FAILURE;
+                    end if;
+                    
+                    for j in DIGITS_DEC'range loop
+                        if (cadena(indice) = DIGITS_DEC(j)) then
+                            addrReg := j-1;
+                            exit;
+                        end if;
+                    end loop;
+                    
+                    indice := indice + 1;
+                    
+                    -- Verificar si es registro de dos dígitos
+                    if (isNumber(cadena(indice))) then
+                        for j in DIGITS_DEC'range loop
+                            if (cadena(indice) = DIGITS_DEC(j)) then
+                                addrReg := 10 + j-1;
+                                exit;
+                            end if;
+                        end loop;
+                        indice := indice + 1;
+                    end if;
+                else
+                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base debe ser r0-r15 o sp"
                     severity FAILURE;
                 end if;
                 
-                indice := indice + 2;
-                
                 if (cadena(indice) /= ')') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': se esperaba ')' después de sp"
+                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': se esperaba ')' después del registro base"
                     severity FAILURE;
                 end if;
                 
                 indice := indice + 1;
                 addrInm := offsetValue;
-                addrReg := 14; -- SP es el registro 14
                 
             else
                 -- Direccionamiento normal con variable y registro
-                is_sp_addressing := false;
+                is_register_addressing := false;
                 
                 for j in 1 to cant_variables loop
                     match := true;
@@ -1020,35 +1050,42 @@ BEGIN
                 
                 indice := indice + 1;
                 
-                if (cadena(indice) /= 'r') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                    severity FAILURE;
-                end if;
-                
-                indice := indice + 1;
-                
-                if (not isNumber(cadena(indice))) then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                    severity FAILURE;
-                end if;
-                
-                for j in DIGITS_DEC'range loop
-                    if (cadena(indice) = DIGITS_DEC(j)) then
-                        addrReg := j-1;
-                        exit;
+                -- Leer registro base (puede ser r0-r15 o sp)
+                if (cadena(indice) = 's' and cadena(indice+1) = 'p') then
+                    -- Registro sp
+                    addrReg := 14;
+                    indice := indice + 2;
+                elsif (cadena(indice) = 'r') then
+                    -- Registro normal r0-r15
+                    indice := indice + 1;
+                    
+                    if (not isNumber(cadena(indice))) then
+                        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base se encuentra incorrectamente declarado"
+                        severity FAILURE;
                     end if;
-                end loop;
-                
-                indice := indice + 1;
-                
-                if (isNumber(cadena(indice))) then
+                    
                     for j in DIGITS_DEC'range loop
                         if (cadena(indice) = DIGITS_DEC(j)) then
-                            addrReg := 10 + j-1;
+                            addrReg := j-1;
                             exit;
                         end if;
                     end loop;
+                    
                     indice := indice + 1;
+                    
+                    -- Verificar si es registro de dos dígitos
+                    if (isNumber(cadena(indice))) then
+                        for j in DIGITS_DEC'range loop
+                            if (cadena(indice) = DIGITS_DEC(j)) then
+                                addrReg := 10 + j-1;
+                                exit;
+                            end if;
+                        end loop;
+                        indice := indice + 1;
+                    end if;
+                else
+                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base debe ser r0-r15 o sp"
+                    severity FAILURE;
                 end if;
                 
                 if (cadena(indice) /= ')') then

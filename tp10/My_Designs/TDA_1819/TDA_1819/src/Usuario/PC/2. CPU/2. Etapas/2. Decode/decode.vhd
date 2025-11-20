@@ -375,22 +375,32 @@ begin
 				IDtoWB.source <= std_logic_vector(to_unsigned(WB_MEM, IDtoWB.source'length));
 				rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
 				IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
-				addrAux := to_integer(unsigned(IFtoIDLocal.package1(23 downto 8)));
-				-- DETECTAR SI ES SP (ID 37) O REGISTRO NORMAL
+				
+				--Para modificar el LH, analizamos si se usa SP como registro
+				    -- DETECTAR SI ES SP
 			    if (to_integer(unsigned(IFtoIDLocal.package2(7 downto 0))) = ID_SP) then
-			        -- Usar SP como registro base
+			        -- CASO SP: usar signed para offsets negativos
 			        IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+			        SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+			        EnableRegID <= '1';
+			        WAIT FOR 1 ns;
+			        EnableRegID <= '0';
+			        WAIT FOR 1 ns;
+			        -- OFFSET signed + SP signed
+			        addrAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8))) + 
+			                   to_integer(signed(DataRegOutID(15 downto 0)));
 			    else
-			        -- Comportamiento normal
+			        -- CASO REGISTROS NORMALES: mantener unsigned
+			        addrAux := to_integer(unsigned(IFtoIDLocal.package1(23 downto 8)));
 			        IdRegID <= IFtoIDLocal.package2(7 downto 0);
-			    end if;
-				-----------------------------------------------------------------------
-				SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
-				EnableRegID <= '1';
-				WAIT FOR 1 ns;
-				EnableRegID <= '0';
-				WAIT FOR 1 ns;
-				addrAux := addrAux + to_integer(unsigned(DataRegOutID(15 downto 0)));
+			        SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+			        EnableRegID <= '1';
+			        WAIT FOR 1 ns;
+			        EnableRegID <= '0';
+			        WAIT FOR 1 ns;
+			        addrAux := addrAux + to_integer(unsigned(DataRegOutID(15 downto 0)));
+			    end if;	 
+				
 				IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
 			WHEN SH =>
 				IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
@@ -406,22 +416,29 @@ begin
 				WAIT FOR 1 ns;
 				IDtoMA.data.decode(15 downto 0) <= DataRegOutID(15 downto 0);
 				if (StallRAW = '0') then
-					addrAux := to_integer(unsigned(IFtoIDLocal.package1(23 downto 8)));
-					-- DETECTAR SI ES SP (ID 37) O REGISTRO NORMAL
+					-- DETECTAR SI ES SP
 			        if (to_integer(unsigned(IFtoIDLocal.package2(7 downto 0))) = ID_SP) then
-			            -- Usar SP como registro base
+			            -- CASO SP: usar signed para offsets negativos
 			            IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length));
+			            SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+			            EnableRegID <= '1';
+			            WAIT FOR 1 ns;
+			            EnableRegID <= '0';
+			            WAIT FOR 1 ns;
+			            -- OFFSET signed + SP signed
+			            addrAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8))) + 
+			                       to_integer(signed(DataRegOutID(15 downto 0)));
 			        else
-			            -- Comportamiento normal
+			            -- CASO REGISTROS NORMALES: mantener unsigned
+			            addrAux := to_integer(unsigned(IFtoIDLocal.package1(23 downto 8)));
 			            IdRegID <= IFtoIDLocal.package2(7 downto 0);
+			            SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
+			            EnableRegID <= '1';
+			            WAIT FOR 1 ns;
+			            EnableRegID <= '0';
+			            WAIT FOR 1 ns;
+			            addrAux := addrAux + to_integer(unsigned(DataRegOutID(15 downto 0)));
 			        end if;
-					----------------------------------------
-					SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
-					EnableRegID <= '1';
-					WAIT FOR 1 ns;
-					EnableRegID <= '0';
-					WAIT FOR 1 ns;
-					addrAux := addrAux + to_integer(unsigned(DataRegOutID(15 downto 0)));
 					IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
 				end if;
 			WHEN LW =>

@@ -76,6 +76,7 @@ use TDA_1819.const_ascii.all;
 use TDA_1819.tipos_ensamblador.all; 
 use TDA_1819.tipos_cpu.all;
 use TDA_1819.tipos_ascii.all;
+use TDA_1819.const_registros.all;
 
 library ieee;
 use ieee.NUMERIC_STD.all;
@@ -827,411 +828,237 @@ begin
 	END checkCodeBegin;
 	
 	
-	PROCEDURE checkInstTd(CONSTANT variables: IN variable_records; CONSTANT cant_variables: IN INTEGER;
-                      CONSTANT cadena, INSTTD_NAME: IN STRING; CONSTANT INSTTD_CODE: STD_LOGIC_VECTOR(7 downto 0);
-                      CONSTANT INSTTD_SIZE: IN INTEGER; i: INOUT INTEGER; check: INOUT BOOLEAN;
-                      CONSTANT nombre: IN STRING; CONSTANT num_linea: IN INTEGER; CONSTANT addr_linea: IN INTEGER) IS
-    
+-----------------------------------------------------------------------
+-- PROCEDURE ARREGLADO PARA LH / SH
+-----------------------------------------------------------------------
+PROCEDURE checkInstTd(
+    CONSTANT variables: IN variable_records;
+    CONSTANT cant_variables: IN INTEGER;
+    CONSTANT cadena, INSTTD_NAME: IN STRING;
+    CONSTANT INSTTD_CODE: STD_LOGIC_VECTOR(7 downto 0);
+    CONSTANT INSTTD_SIZE: IN INTEGER;
+    i: INOUT INTEGER;
+    check: INOUT BOOLEAN;
+    CONSTANT nombre: IN STRING;
+    CONSTANT num_linea: IN INTEGER;
+    CONSTANT addr_linea: IN INTEGER
+) IS
+
     VARIABLE match: BOOLEAN := true;
     VARIABLE indice: INTEGER := i;
     VARIABLE i_aux: INTEGER;
-    VARIABLE numReg1: INTEGER;
-    VARIABLE numReg2: INTEGER;
-    VARIABLE addrInm: INTEGER;
-    VARIABLE addrReg: INTEGER;
-    VARIABLE offsetValue: INTEGER := 0;
-    VARIABLE is_negative: BOOLEAN := false;
-    VARIABLE base10: INTEGER := 1;
-    VARIABLE is_register_addressing: BOOLEAN := false;
-                           
+
+    VARIABLE numReg1: INTEGER;      -- registro destino
+    VARIABLE addrReg: INTEGER;      -- registro base
+    VARIABLE offsetValue : INTEGER := 0;
+    VARIABLE offset16 : signed(15 downto 0);
+    VARIABLE is_negative : BOOLEAN := false;
+    VARIABLE is_register_addressing : BOOLEAN := false;
+
 BEGIN
+    -------------------------------------------------------------------
+    -- 1) Comparar nombre
+    -------------------------------------------------------------------
     for j in INSTTD_NAME'RANGE loop
-        if (INSTTD_NAME(j) = ' ') then
-            exit;
-        end if;
-        if (cadena(indice) /= INSTTD_NAME(j)) then
-            match := false;
-            exit;
-        end if;
-        indice := indice + 1;
-    end loop;
-    
-    if (match) then
-        if (cadena(indice) /= ' ') then
+        exit when INSTTD_NAME(j) = ' ';
+        if cadena(indice) /= INSTTD_NAME(j) then
             check := false;
             return;
         end if;
-        
-        while (cadena(indice) = ' ') loop
-            indice := indice + 1;
-        end loop;
-        
-        -- Determinar tipo de registro según la instrucción
-        if ((INSTTD_SIZE = 6) and (INSTTD_NAME(2) /= 'f')) or (INSTTD_NAME = "mrf") then
-            if (cadena(indice) /= 'r') then
-                report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el primer operando se encuentra incorrectamente declarado"
-                severity FAILURE;
-            end if;
-            numReg1 := 0;
-        else
-            if (cadena(indice) /= 'f') then
-                report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el primer operando se encuentra incorrectamente declarado"
-                severity FAILURE;
-            end if;
-            numReg1 := CANT_REGISTROS;
-        end if;
-        
         indice := indice + 1;
-        
-        -- Leer número de registro (puede ser r0-r15 o sp)
-        if (cadena(indice) = 's' and cadena(indice+1) = 'p') then
-            -- Registro sp
-            numReg1 := 14; -- SP es el registro 14
-            indice := indice + 2;
-        elsif (isNumber(cadena(indice))) then
-            -- Registro normal r0-r15
-            for j in DIGITS_DEC'range loop
-                if (cadena(indice) = DIGITS_DEC(j)) then
-                    numReg1 := numReg1 + j-1;
-                    exit;
-                end if;
-            end loop;
-            indice := indice + 1;
-            
-            -- Verificar si es registro de dos dígitos
-            if (isNumber(cadena(indice))) then
-                for j in DIGITS_DEC'range loop
-                    if (cadena(indice) = DIGITS_DEC(j)) then
-                        if (cadena(indice-2) = 'r') then
-                            numReg1 := 10 + j-1;
-                        else
-                            numReg1 := CANT_REGISTROS + 10 + j-1; 
-                        end if;
-                        exit;
-                    end if;
-                end loop;
-                indice := indice + 1;
-            end if;
-        else
-            report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el primer operando se encuentra incorrectamente declarado"
-            severity FAILURE;
-        end if;
-        
-        if (cadena(indice) /= ',') then
-            report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': se esperaba una coma después del registro"
-            severity FAILURE;
-        end if;
-        
-        indice := indice + 1;
-        
-        if (cadena(indice) /= ' ') then
-            report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-            severity FAILURE;    
-        end if;
-        
-        indice := indice + 1; 
-        
-        if (INSTTD_SIZE = 6) then
-            -- Verificar si es direccionamiento con registro (0(r0), -2(r1), 4(r15), etc.)
-            if (cadena(indice) = '-' or isNumber(cadena(indice))) then
-                -- Es direccionamiento con registro: offset(rX)
-                is_register_addressing := true;
-                
-                -- Leer offset
-                if (cadena(indice) = '-') then
-                    is_negative := true;
-                    indice := indice + 1;
-                end if;
-                
-                if (not isNumber(cadena(indice))) then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el offset debe ser un número"
-                    severity FAILURE;
-                end if;
-                
-                -- Leer valor del offset
-                while isNumber(cadena(indice)) loop
-                    for j in DIGITS_DEC'range loop
-                        if (cadena(indice) = DIGITS_DEC(j)) then
-                            offsetValue := offsetValue * 10 + (j-1);
-                            exit;
-                        end if;
-                    end loop;
-                    indice := indice + 1;
-                end loop;
-                
-                if (is_negative) then
-                    offsetValue := -offsetValue;
-                end if;
-                
-                -- Verificar que sigue '(r'
-                if (cadena(indice) /= '(') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': se esperaba '(' después del offset"
-                    severity FAILURE;
-                end if;
-                
-                indice := indice + 1;
-                
-                -- Leer registro base (puede ser r0-r15 o sp)
-                if (cadena(indice) = 's' and cadena(indice+1) = 'p') then
-                    -- Registro sp
-                    addrReg := 14;
-                    indice := indice + 2;
-                elsif (cadena(indice) = 'r') then
-                    -- Registro normal r0-r15
-                    indice := indice + 1;
-                    
-                    if (not isNumber(cadena(indice))) then
-                        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base se encuentra incorrectamente declarado"
-                        severity FAILURE;
-                    end if;
-                    
-                    for j in DIGITS_DEC'range loop
-                        if (cadena(indice) = DIGITS_DEC(j)) then
-                            addrReg := j-1;
-                            exit;
-                        end if;
-                    end loop;
-                    
-                    indice := indice + 1;
-                    
-                    -- Verificar si es registro de dos dígitos
-                    if (isNumber(cadena(indice))) then
-                        for j in DIGITS_DEC'range loop
-                            if (cadena(indice) = DIGITS_DEC(j)) then
-                                addrReg := 10 + j-1;
-                                exit;
-                            end if;
-                        end loop;
-                        indice := indice + 1;
-                    end if;
-                else
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base debe ser r0-r15 o sp"
-                    severity FAILURE;
-                end if;
-                
-                if (cadena(indice) /= ')') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': se esperaba ')' después del registro base"
-                    severity FAILURE;
-                end if;
-                
-                indice := indice + 1;
-                addrInm := offsetValue;
-                
-            else
-                -- Direccionamiento normal con variable y registro
-                is_register_addressing := false;
-                
-                for j in 1 to cant_variables loop
-                    match := true;
-                    i_aux := indice;
-                    for k in 1 to variables(j).namelength loop
-                        if (cadena(i_aux) /= variables(j).name(k)) then
-                            match := false;
-                            exit;
-                        end if;
-                        i_aux := i_aux + 1;
-                    end loop;
-                    if (match) then
-                        addrInm := variables(j).address;
-                        indice := indice + variables(j).namelength;
-                        exit;
-                    end if;
-                end loop; 
-                
-                if (not match) then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando no hace referencia al nombre de ninguna variable válida declarada"
-                    severity FAILURE;
-                end if;
-                
-                if (cadena(indice) /= '(') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                    severity FAILURE;
-                end if;
-                
-                indice := indice + 1;
-                
-                -- Leer registro base (puede ser r0-r15 o sp)
-                if (cadena(indice) = 's' and cadena(indice+1) = 'p') then
-                    -- Registro sp
-                    addrReg := 14;
-                    indice := indice + 2;
-                elsif (cadena(indice) = 'r') then
-                    -- Registro normal r0-r15
-                    indice := indice + 1;
-                    
-                    if (not isNumber(cadena(indice))) then
-                        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base se encuentra incorrectamente declarado"
-                        severity FAILURE;
-                    end if;
-                    
-                    for j in DIGITS_DEC'range loop
-                        if (cadena(indice) = DIGITS_DEC(j)) then
-                            addrReg := j-1;
-                            exit;
-                        end if;
-                    end loop;
-                    
-                    indice := indice + 1;
-                    
-                    -- Verificar si es registro de dos dígitos
-                    if (isNumber(cadena(indice))) then
-                        for j in DIGITS_DEC'range loop
-                            if (cadena(indice) = DIGITS_DEC(j)) then
-                                addrReg := 10 + j-1;
-                                exit;
-                            end if;
-                        end loop;
-                        indice := indice + 1;
-                    end if;
-                else
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el registro base debe ser r0-r15 o sp"
-                    severity FAILURE;
-                end if;
-                
-                if (cadena(indice) /= ')') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                    severity FAILURE;
-                end if;
-                
-                indice := indice + 1;
-            end if;
-            
-            -- Generar código máquina para instrucciones de 6 bytes
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_unsigned(INSTTD_SIZE, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY; 
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';    
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+1, InstAddrBusComp'length));
-            InstDataBusOutComp <= "ZZZZZZZZZZZZZZZZZZZZZZZZ" & INSTTD_CODE;
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+2, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_unsigned(numReg1, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';    
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+3, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_signed(addrInm, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(2, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0'; 
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+5, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_unsigned(addrReg, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';
-            WAIT FOR 1 ns; 
-            
-        else
-            -- Instrucciones de 4 bytes (mrf, mfr)
-            if (INSTTD_NAME /= "mfr") then
-                if (cadena(indice) /= 'f') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                    severity FAILURE;
-                end if;
-                numReg2 := CANT_REGISTROS;
-            else
-                if (cadena(indice) /= 'r') then
-                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                    severity FAILURE;
-                end if;
-                numReg2 := 0;
-            end if;
-            
-            indice := indice + 1;
-            
-            if (not isNumber(cadena(indice))) then
-                report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando se encuentra incorrectamente declarado"
-                severity FAILURE;
-            end if;
-            
-            for j in DIGITS_DEC'range loop
-                if (cadena(indice) = DIGITS_DEC(j)) then
-                    numReg2 := numReg2 + j-1;
-                    exit;
-                end if;
-            end loop;
-            
-            indice := indice + 1;
-            
-            if (isNumber(cadena(indice))) then
-                for j in DIGITS_DEC'range loop
-                    if (cadena(indice) = DIGITS_DEC(j)) then
-                        if (cadena(indice-2) = 'r') then
-                            numReg2 := 10 + j-1;
-                        else
-                            numReg2 := CANT_REGISTROS + 10 + j-1; 
-                        end if;
-                        exit;
-                    end if;
-                end loop;
-                indice := indice + 1;
-            end if;                
-            
-            -- Generar código máquina para instrucciones de 4 bytes
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_unsigned(INSTTD_SIZE, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY; 
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';    
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+1, InstAddrBusComp'length));
-            InstDataBusOutComp <= "ZZZZZZZZZZZZZZZZZZZZZZZZ" & INSTTD_CODE;
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+2, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_unsigned(numReg1, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0';    
-            WAIT FOR 1 ns;
-            
-            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+3, InstAddrBusComp'length));
-            InstDataBusOutComp <= std_logic_vector(to_unsigned(numReg2, InstDataBusOutComp'length));
-            InstSizeBusComp <= std_logic_vector(to_unsigned(1, InstSizeBusComp'length));
-            InstCtrlBusComp <= WRITE_MEMORY;
-            EnableCompToInstMem <= '1';
-            WAIT FOR 1 ns;
-            EnableCompToInstMem <= '0'; 
-            WAIT FOR 1 ns;
-        end if;
-        
-        i := indice;
-        check := true;
-    else
+    end loop;
+
+    -------------------------------------------------------------------
+    -- 2) Espacios
+    -------------------------------------------------------------------
+    if cadena(indice) /= ' ' then
         check := false;
+        return;
     end if;
+    while cadena(indice) = ' ' loop
+        indice := indice + 1;
+    end loop;
+
+    -------------------------------------------------------------------
+    -- 3) Registro destino (rX o sp)
+    -------------------------------------------------------------------
+    if cadena(indice) = 's' and cadena(indice+1) = 'p' then
+        numReg1 := ID_SP;          -- SP destino
+        indice := indice + 2;
+    elsif cadena(indice) = 'r' then
+        indice := indice + 1;
+        if not isNumber(cadena(indice)) then
+            report "Error: registro destino inválido"
+            severity FAILURE;
+        end if;
+
+        numReg1 := 0;
+        for j in DIGITS_DEC'range loop
+            if cadena(indice) = DIGITS_DEC(j) then
+                numReg1 := j-1;
+                exit;
+            end if;
+        end loop;
+        indice := indice + 1;
+
+        -- r10–r15
+        if isNumber(cadena(indice)) then
+            for j in DIGITS_DEC'range loop
+                if cadena(indice) = DIGITS_DEC(j) then
+                    numReg1 := numReg1 + 10 + j-1;
+                    exit;
+                end if;
+            end loop;
+            indice := indice + 1;
+        end if;
+    else
+        report "Error: registro destino inválido" severity FAILURE;
+    end if;
+
+    -------------------------------------------------------------------
+    -- 4) Coma
+    -------------------------------------------------------------------
+    if cadena(indice) /= ',' then
+        report "Error: se esperaba coma" severity FAILURE;
+    end if;
+    indice := indice + 1;
+    if cadena(indice) = ' ' then
+        indice := indice + 1;
+    end if;
+
+    -------------------------------------------------------------------
+    -- 5) offset(rX) o offset(sp)
+    -------------------------------------------------------------------
+    if cadena(indice) = '-' then
+        is_negative := true;
+        indice := indice + 1;
+    end if;
+
+    if not isNumber(cadena(indice)) then
+        report "Error: offset inválido" severity FAILURE;
+    end if;
+
+    offsetValue := 0;
+    while isNumber(cadena(indice)) loop
+        for j in DIGITS_DEC'range loop
+            if cadena(indice) = DIGITS_DEC(j) then
+                offsetValue := offsetValue * 10 + (j-1);
+                exit;
+            end if;
+        end loop;
+        indice := indice + 1;
+    end loop;
+
+    if is_negative then
+        offset16 := to_signed(-offsetValue, 16);
+    else
+        offset16 := to_signed(offsetValue, 16);
+    end if;
+
+    -------------------------------------------------------------------
+    -- 6) '('
+    -------------------------------------------------------------------
+    if cadena(indice) /= '(' then
+        report "Error: falta '('" severity FAILURE;
+    end if;
+    indice := indice + 1;
+
+    -------------------------------------------------------------------
+    -- 7) registro base (rX o sp)
+    -------------------------------------------------------------------
+    if cadena(indice) = 's' and cadena(indice+1) = 'p' then
+        addrReg := ID_SP;
+        indice := indice + 2;
+
+    elsif cadena(indice) = 'r' then
+        indice := indice + 1;
+
+        if not isNumber(cadena(indice)) then
+            report "Error: registro base inválido" severity FAILURE;
+        end if;
+
+        addrReg := 0;
+        for j in DIGITS_DEC'range loop
+            if cadena(indice) = DIGITS_DEC(j) then
+                addrReg := j-1;
+                exit;
+            end if;
+        end loop;
+        indice := indice + 1;
+
+        -- r10–r15
+        if isNumber(cadena(indice)) then
+            for j in DIGITS_DEC'range loop
+                if cadena(indice) = DIGITS_DEC(j) then
+                    addrReg := addrReg + 10 + j-1;
+                    exit;
+                end if;
+            end loop;
+            indice := indice + 1;
+        end if;
+
+    else
+        report "Error: registro base inválido" severity FAILURE;
+    end if;
+
+    -------------------------------------------------------------------
+    -- 8) ')'
+    -------------------------------------------------------------------
+    if cadena(indice) /= ')' then
+        report "Error: falta ')'" severity FAILURE;
+    end if;
+    indice := indice + 1;
+
+    -------------------------------------------------------------------
+    -- 9) Escritura del código máquina (6 bytes)
+    -------------------------------------------------------------------
+
+    -- Byte 0: tamaño
+    InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea, 16));
+    InstDataBusOutComp <= std_logic_vector(to_unsigned(INSTTD_SIZE, 32));
+    InstSizeBusComp <= std_logic_vector(to_unsigned(1,4));
+    InstCtrlBusComp <= WRITE_MEMORY;
+    EnableCompToInstMem <= '1'; WAIT FOR 1 ns; EnableCompToInstMem <= '0'; WAIT FOR 1 ns;
+
+    -- Byte 1: opcode
+    InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+1, 16));
+    InstDataBusOutComp(7 downto 0) <= INSTTD_CODE;
+    InstSizeBusComp <= std_logic_vector(to_unsigned(1,4));
+    InstCtrlBusComp <= WRITE_MEMORY;
+    EnableCompToInstMem <= '1'; WAIT FOR 1 ns; EnableCompToInstMem <= '0'; WAIT FOR 1 ns;
+
+    -- Byte 2: registro destino
+    InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+2, 16));
+    InstDataBusOutComp <= std_logic_vector(to_unsigned(numReg1, 32));
+    InstSizeBusComp <= std_logic_vector(to_unsigned(1,4));
+    InstCtrlBusComp <= WRITE_MEMORY;
+    EnableCompToInstMem <= '1'; WAIT FOR 1 ns; EnableCompToInstMem <= '0'; WAIT FOR 1 ns;
+
+    -- Bytes 3–4: offset (low y high)
+    InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+3, 16));
+    InstDataBusOutComp <= (others => '0');
+    InstDataBusOutComp(15 downto 8)  <= std_logic_vector(offset16(7 downto 0));
+    InstDataBusOutComp(23 downto 16) <= std_logic_vector(offset16(15 downto 8));
+    InstSizeBusComp <= std_logic_vector(to_unsigned(2,4));
+    InstCtrlBusComp <= WRITE_MEMORY;
+    EnableCompToInstMem <= '1'; WAIT FOR 1 ns; EnableCompToInstMem <= '0'; WAIT FOR 1 ns;
+
+    -- Byte 5: registro base
+    InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+5, 16));
+    InstDataBusOutComp <= std_logic_vector(to_unsigned(addrReg, 32));
+    InstSizeBusComp <= std_logic_vector(to_unsigned(1,4));
+    InstCtrlBusComp <= WRITE_MEMORY;
+    EnableCompToInstMem <= '1'; WAIT FOR 1 ns; EnableCompToInstMem <= '0'; WAIT FOR 1 ns;
+
+    -------------------------------------------------------------------
+    -- 10) éxito
+    -------------------------------------------------------------------
+    i := indice;
+    check := true;
+
 END checkInstTd;
+
+
 	
 	
 	PROCEDURE checkInstAr(CONSTANT cadena, INSTAR_NAME: IN STRING; 

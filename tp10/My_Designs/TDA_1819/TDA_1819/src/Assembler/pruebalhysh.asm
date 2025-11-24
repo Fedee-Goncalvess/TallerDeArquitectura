@@ -1,12 +1,11 @@
 		.data
-A:		.word	467
-B:		.word	345
+valor:		.hword	5000
+offset:		.word	-4
+resultado:	.hword	0
 		.code
-		daddi r1, r0, 1
-		daddi r2, r0, 2
-		sh r1 A
-		sh r2 B
-		lh r3 A
-		lh r4 B
+		daddi r1, r0, 5000
+		daddi r10, r0, 30000
+		sh r1, -2(sp)
+		lh r2, -2(sp)
 		halt
 	

@@ -138,6 +138,8 @@ begin
 	VARIABLE idAux:			INTEGER := 0;
 	VARIABLE offsetAux: 	INTEGER := 0;
 	VARIABLE baseAux: 		INTEGER := 0;
+	--Agrego esta variable adicional
+	VARIABLE offset16:		signed(15 downto 0);
 
 	
 	BEGIN 
@@ -387,7 +389,7 @@ begin
     --------------------------------------------------------------------
     -- LECTURA DE OFFSET = signed(IFtoIDLocal.package1(23..8))
     --------------------------------------------------------------------
-    offsetAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8)));
+    offsetAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8))) / 256;
 
     --------------------------------------------------------------------
     -- LECTURA DEL REGISTRO BASE (r0–r15 o SP)
@@ -400,7 +402,7 @@ begin
     WAIT FOR 1 ns;
 
     -- Leer valor del registro base como signed (IMPORTANTE)
-    baseAux := to_integer(signed(DataRegOutID(15 downto 0)));
+    baseAux := to_integer(unsigned(DataRegOutID(15 downto 0)));
 
     --------------------------------------------------------------------
     -- Dirección final: base + offset (signed)
@@ -408,22 +410,22 @@ begin
     addrAux := baseAux + offsetAux;
 
     -- Enviar a Memory Access
-    IDtoMA.address <= std_logic_vector(
-    unsigned( to_signed(addrAux, IDtoMA.address'length) )
-);
+    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length) );
 
 
 			WHEN SH =>
-    -- Config MA
-    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
-    IDtoMA.write <= '1';
-    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));
-    IDtoMA.source <= std_logic_vector(to_unsigned(MEM_ID, IDtoMA.source'length));
+
+    -- Config memoria
+    IDtoMA.mode    <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
+    IDtoMA.write   <= '1';
+    IDtoMA.datasize<= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));
+    IDtoMA.source  <= std_logic_vector(to_unsigned(MEM_ID, IDtoMA.source'length));
 
     --------------------------------------------------------------------
-    -- R REGISTRO DE DONDE SALE EL DATO A GUARDAR
+    -- 1) REGISTRO CON EL DATO A GUARDAR (rX)
     --------------------------------------------------------------------
     rfAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0)));
+
     IdRegID <= std_logic_vector(to_unsigned(rfAux, IdRegID'length));
     SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
     EnableRegID <= '1';
@@ -431,18 +433,21 @@ begin
     EnableRegID <= '0';
     WAIT FOR 1 ns;
 
-    -- Guardar 16 bits (halfword)
     IDtoMA.data.decode(15 downto 0) <= DataRegOutID(15 downto 0);
 
+    --------------------------------------------------------------------
+    -- ESPERAR HASTA QUE NO HAYA RAW HAZARDS
+    --------------------------------------------------------------------
     IF (StallRAW = '0') THEN
 
         ----------------------------------------------------------------
-        -- OFFSET signed desde assembler
+        -- 2) OFFSET (signed) CORREGIDO
         ----------------------------------------------------------------
-        offsetAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8)));
+        offset16 := signed(IFtoIDLocal.package1(23 downto 8));
+        offsetAux := to_integer(offset16) / 256;
 
         ----------------------------------------------------------------
-        -- REGISTRO BASE
+        -- 3) LEER REGISTRO BASE
         ----------------------------------------------------------------
         IdRegID <= IFtoIDLocal.package2(7 downto 0);
         SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
@@ -451,20 +456,19 @@ begin
         EnableRegID <= '0';
         WAIT FOR 1 ns;
 
-        -- Leer base como signed
-        baseAux := to_integer(signed(DataRegOutID(15 downto 0)));
+        baseAux := to_integer(unsigned(DataRegOutID(15 downto 0)));
 
         ----------------------------------------------------------------
-        -- Dirección final
+        -- 4) DIRECCIÓN FINAL
         ----------------------------------------------------------------
         addrAux := baseAux + offsetAux;
 
-        IDtoMA.address <= std_logic_vector( to_signed(addrAux, IDtoMA.address'length) );
-
-
+        ----------------------------------------------------------------
+        -- 5) *** SOLO AHORA *** mandamos la dirección a MA
+        ----------------------------------------------------------------
+        IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
 
     END IF;
-
 
 			WHEN LW =>
 				IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));

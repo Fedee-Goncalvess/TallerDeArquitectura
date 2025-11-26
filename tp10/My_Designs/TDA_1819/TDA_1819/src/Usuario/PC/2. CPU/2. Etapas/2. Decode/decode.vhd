@@ -389,7 +389,7 @@ begin
     --------------------------------------------------------------------
     -- LECTURA DE OFFSET = signed(IFtoIDLocal.package1(23..8))
     --------------------------------------------------------------------
-    offsetAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8))) / 256;
+    offsetAux := to_integer(signed(IFtoIDLocal.package1(23 downto 8)));
 
     --------------------------------------------------------------------
     -- LECTURA DEL REGISTRO BASE (r0–r15 o SP)
@@ -444,7 +444,7 @@ begin
         -- 2) OFFSET (signed) CORREGIDO
         ----------------------------------------------------------------
         offset16 := signed(IFtoIDLocal.package1(23 downto 8));
-        offsetAux := to_integer(offset16) / 256;
+        offsetAux := to_integer(offset16);
 
         ----------------------------------------------------------------
         -- 3) LEER REGISTRO BASE

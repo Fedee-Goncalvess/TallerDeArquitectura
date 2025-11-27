@@ -35,8 +35,7 @@ CONT:		nop
 		nop
 		nop
 		jmp LEER
-SUM_PAR:	nop
-		pushh r7
+SUM_PAR:	pushh r7
 		nop
 		nop
 		nop
@@ -62,8 +61,7 @@ LEER:		nop
 		sh r12, 2(r15)
 		sh r11, 4(r15)
 		jmp SIGUE
-L_MAYOR:	nop
-		sh r11, 2(r15)
+L_MAYOR:	sh r11, 2(r15)
 		sh r12, 4(r15)
 SIGUE:		nop
 		beq r5, r0, PAR2
@@ -92,10 +90,7 @@ PP:		nop
 		poph r7
 		nop
 		nop
-		nop
 FIN:		nop
-		nop
-		nop
 		poph r4
 		nop
 		nop
